@@ -1,6 +1,2 @@
-.env
-.vscode/
-.DS_Store
-venv/
-env/
-virtualenv/
+
+node_modules/
