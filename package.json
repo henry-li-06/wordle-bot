@@ -5,6 +5,7 @@
     "test": "ts-node ./src/test.ts"
   },
   "dependencies": {
+    "cli-progress": "^3.10.0",
     "ts-node": "^10.5.0",
     "typescript": "^4.5.5"
   },
