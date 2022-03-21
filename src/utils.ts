@@ -45,3 +45,17 @@ export const isMatch = (
     }
   });
 };
+
+export const convertFeedback = (feedback: string[]): LetterInfo[] =>
+  feedback.map((info) => {
+    switch (info) {
+      case 'present':
+        return 'yellow';
+      case 'absent':
+        return 'grey';
+      case 'correct':
+        return 'green';
+      default:
+        throw new Error();
+    }
+  });

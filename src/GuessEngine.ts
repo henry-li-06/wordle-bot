@@ -75,16 +75,12 @@ export default class GuessEngine {
     return sorted[0].guess;
   }
 
-  start() {
+  async start() {
     let response: GameResponse | null = null;
     while (response === null || response.status === 'continue') {
-      console.log('Determining the best gues...');
+      console.log('Determining the best guess...');
       let guess = this.computeBestGuess();
-      // let guess =
-      //   this.possibleGuesses[
-      //     getRandomArbitrary(0, this.possibleGuesses.length - 1)
-      //   ];
-      response = this.engine.makeGuess(guess);
+      response = await this.engine.makeGuess(guess);
       this.possibleGuesses = this.handleFeedback(
         guess,
         response.feedback,

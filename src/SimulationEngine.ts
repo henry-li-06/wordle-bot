@@ -15,7 +15,7 @@ export default class SimulationEngine extends GameEngine {
     this.numGuesses = 0;
   }
 
-  makeGuess(guess: string): GameResponse {
+  async makeGuess(guess: string): Promise<GameResponse> {
     if (!isValidWord(guess) || this.numGuesses >= this.maxGuesses)
       throw new Error();
 
