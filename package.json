@@ -2,7 +2,8 @@
   "name": "wordle-bot",
   "version": "1.0.0",
   "scripts": {
-    "test": "ts-node ./src/test.ts"
+    "test": "ts-node ./src/test.ts",
+    "start": "ts-node ./src/main.ts"
   },
   "dependencies": {
     "@types/selenium-webdriver": "^4.0.18",

@@ -1,4 +1,4 @@
-import words from '../data/possible-words.json';
+import words from '../data/words.json';
 import GameEngine from './GameEngine';
 import { GameResponse, LetterInfo } from './types';
 import {
@@ -57,7 +57,6 @@ export default class GuessEngine {
         );
       });
       remainingGuesses = wordList;
-      console.log(remainingGuesses);
     });
     return remainingGuesses;
   }
@@ -79,7 +78,6 @@ export default class GuessEngine {
       sleep(3000);
       return 'slate';
     }
-    console.log(this.possibleGuesses);
     const bar = new progress.SingleBar({}, progress.Presets.legacy);
     bar.start(this.possibleGuesses.length, 0);
 
@@ -123,6 +121,6 @@ export default class GuessEngine {
       );
       console.log(response);
     }
-    sleep(2000);
+    return response;
   }
 }
