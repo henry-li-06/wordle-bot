@@ -1,9 +1,7 @@
 import { Builder, WebDriver, By } from 'selenium-webdriver';
 import GameEngine from './GameEngine';
 import { GameResponse, LetterInfo } from './types';
-import { convertFeedback } from './utils';
-
-const sleep = (delay) => new Promise((resolve) => setTimeout(resolve, delay));
+import { convertFeedback, sleep } from './utils';
 
 export default class BrowserEngine extends GameEngine {
   driver: WebDriver;
@@ -14,16 +12,13 @@ export default class BrowserEngine extends GameEngine {
     this.numGuesses = 0;
     this.driver = new Builder().forBrowser('chrome').build();
     this.driver.get('https://www.nytimes.com/games/wordle/index.html');
-    setTimeout(
-      () =>
-        this.getShadowRoot(this.driver, 'game-app').then((shadowRoot) =>
-          this.getShadowRoot(shadowRoot, 'game-modal').then((shadowRoot) =>
-            shadowRoot
-              .findElement(By.className('close-icon'))
-              .then((closeButton) => closeButton.click())
-          )
-        ),
-      5000
+    sleep(5000);
+    this.getShadowRoot(this.driver, 'game-app').then((shadowRoot) =>
+      this.getShadowRoot(shadowRoot, 'game-modal').then((shadowRoot) =>
+        shadowRoot
+          .findElement(By.className('close-icon'))
+          .then((closeButton) => closeButton.click())
+      )
     );
   }
 
@@ -94,9 +89,7 @@ export default class BrowserEngine extends GameEngine {
   async makeGuess(guess: string): Promise<GameResponse> {
     const gameRoot = await this.getGameRoot();
     await this.inputGuess(guess);
-    await sleep(3000);
-    const feedback = await this.readFeedback();
-    console.log(feedback);
+    const feedback = await sleep(5000).then(() => this.readFeedback());
 
     this.numGuesses++;
     const status = feedback.every((info) => info === 'green')

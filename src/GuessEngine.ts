@@ -1,16 +1,38 @@
 import words from '../data/possible-words.json';
 import GameEngine from './GameEngine';
 import { GameResponse, LetterInfo } from './types';
-import { getRandomArbitrary, allPossibleFeedback, isMatch } from './utils';
+import {
+  getRandomArbitrary,
+  allPossibleFeedback,
+  isMatch,
+  sleep,
+} from './utils';
 import * as progress from 'cli-progress';
 
 export default class GuessEngine {
   possibleGuesses: string[];
   engine: GameEngine;
+  numGuesses: number;
 
   constructor(engine: GameEngine) {
+    sleep(3000);
     this.possibleGuesses = words;
     this.engine = engine;
+    this.numGuesses = 0;
+  }
+
+  private static handleGreyFeedback(
+    guess: string,
+    feedback: LetterInfo[],
+    possibleGuess: string,
+    pos: number
+  ) {
+    const letter = guess[pos];
+    const containsOther = guess
+      .split('')
+      .some((it, i) => i !== pos && it === letter && feedback[i] !== 'grey');
+    if (!containsOther) return !possibleGuess.includes(letter);
+    return possibleGuess[pos] !== guess[pos];
   }
 
   private handleFeedback(
@@ -26,9 +48,16 @@ export default class GuessEngine {
           return (
             possibleGuess.includes(guess[i]) && possibleGuess[i] !== guess[i]
           );
-        return !possibleGuess[i].includes(guess[i]);
+
+        return GuessEngine.handleGreyFeedback(
+          guess,
+          feedback,
+          possibleGuess,
+          i
+        );
       });
       remainingGuesses = wordList;
+      console.log(remainingGuesses);
     });
     return remainingGuesses;
   }
@@ -45,6 +74,12 @@ export default class GuessEngine {
   }
 
   computeBestGuess(): string {
+    if (this.numGuesses === 0) {
+      this.numGuesses++;
+      sleep(3000);
+      return 'slate';
+    }
+    console.log(this.possibleGuesses);
     const bar = new progress.SingleBar({}, progress.Presets.legacy);
     bar.start(this.possibleGuesses.length, 0);
 
@@ -88,5 +123,6 @@ export default class GuessEngine {
       );
       console.log(response);
     }
+    sleep(2000);
   }
 }

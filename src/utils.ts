@@ -59,3 +59,6 @@ export const convertFeedback = (feedback: string[]): LetterInfo[] =>
         throw new Error();
     }
   });
+
+export const sleep = (delay) =>
+  new Promise((resolve) => setTimeout(resolve, delay));
