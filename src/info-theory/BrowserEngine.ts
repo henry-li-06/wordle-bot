@@ -1,15 +1,13 @@
 import { Builder, WebDriver, By } from 'selenium-webdriver';
 import GameEngine from './GameEngine';
-import { GameResponse, LetterInfo } from './types';
-import { convertFeedback, sleep } from './utils';
+import { GameResponse, LetterInfo } from '../types';
+import { convertFeedback, sleep } from '../utils';
 
 export default class BrowserEngine extends GameEngine {
   driver: WebDriver;
-  numGuesses: number;
 
   constructor() {
     super();
-    this.numGuesses = 0;
     this.driver = new Builder().forBrowser('chrome').build();
     this.driver.get('https://www.nytimes.com/games/wordle/index.html');
     sleep(5000);

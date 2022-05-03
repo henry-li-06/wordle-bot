@@ -1,13 +1,11 @@
-import { GameResponse } from './types';
+import { GameResponse } from '../types';
 import GameEngine from './GameEngine';
-import { isValidWord } from './utils';
+import { isValidWord } from '../utils';
 
 export default class SimulationEngine extends GameEngine {
   maxGuesses = 6;
 
   target: string;
-  numGuesses: number;
-
   constructor(target: string) {
     super();
     if (!isValidWord(target)) throw new Error();

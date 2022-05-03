@@ -1,12 +1,12 @@
-import words from '../data/words.json';
+import words from '../../data/words.json';
 import GameEngine from './GameEngine';
-import { GameResponse, LetterInfo } from './types';
+import { GameResponse, LetterInfo } from '../types';
 import {
   getRandomArbitrary,
   allPossibleFeedback,
   isMatch,
   sleep,
-} from './utils';
+} from '../utils';
 import * as progress from 'cli-progress';
 
 export default class GuessEngine {

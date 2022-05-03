@@ -5,6 +5,6 @@ export type GameResponse = {
   guess: string;
 };
 
-type GameStatus = 'correct' | 'finished' | 'continue';
+export type GameStatus = 'correct' | 'finished' | 'continue';
 
 export type LetterInfo = 'green' | 'yellow' | 'grey';
