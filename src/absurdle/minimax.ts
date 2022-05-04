@@ -3,7 +3,7 @@ import { GameState } from './types';
 import { LetterInfo } from '../types';
 
 const computeFeedback = (word: string, target: string): LetterInfo[] => {
-  const feedback = [];
+  const feedback: LetterInfo[] = [];
   word.split('').forEach((letter, i) => {
     if (letter === target[i]) feedback.push('green');
     else if (target.includes(letter)) feedback.push('yellow');
@@ -47,7 +47,7 @@ const handleFeedback = (
   return remainingGuesses;
 };
 
-const findBestWord = (state: GameState) => {
+export const findBestWord = (state: GameState) => {
   let bestScore = -Infinity;
   let bestWord = '';
   state.wordList.forEach((word) => {
@@ -92,28 +92,13 @@ const minimax = (isMaxTurn: boolean, state: GameState): number => {
         feedback,
         state.wordList
       );
-      const newState = {
+      const newState: GameState = {
         ...state,
+        status: remainingPossibleGuesses.length === 1 ? 'correct' : 'continue',
         wordList: remainingPossibleGuesses,
       };
+      scores.push(minimax(!isMaxTurn, newState));
     }
-    scores.push(minimax(!isMaxTurn, newState));
   });
   return isMaxTurn ? Math.max(...scores) : Math.min(...scores);
 };
-
-/*
-  minimax(maximizing: boolean, state) {
-    if(board.is_terminal) {
-      return the valuation of the state 
-    }
-    scores = []
-    for move in possible moves:
-      make move 
-      scores.add(minimax(!maximizing, state))
-      board.revert_move()
-    return maximizing ? max(score) : min(score)
-  }
-
-
-*/

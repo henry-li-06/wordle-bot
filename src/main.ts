@@ -3,36 +3,18 @@
 
 // const engine = new GuessEngine(new BrowserEngine());
 // engine.start();
+import wordList from '../data/possible-words.json';
+import { findBestWord } from './absurdle/minimax';
+import { GameState } from './absurdle/types';
 
-export type CharStatus = 'absent' | 'present' | 'correct';
+const words = wordList.slice(0, 100);
 
-export const getStatuses = (
-  solution: string,
-  guesses: string[]
-): { [key: string]: CharStatus } => {
-  const charObj: { [key: string]: CharStatus } = {};
-  const splitSolution = solution.split('');
-
-  guesses.forEach((word) => {
-    word.split('').forEach((letter, i) => {
-      if (!splitSolution.includes(letter)) {
-        // make status absent
-        return (charObj[letter] = 'absent');
-      }
-
-      if (letter === splitSolution[i]) {
-        //make status correct
-        return (charObj[letter] = 'correct');
-      }
-
-      if (charObj[letter] !== 'correct') {
-        //make status present
-        return (charObj[letter] = 'present');
-      }
-    });
-  });
-
-  return charObj;
+const state: GameState = {
+  numGuesses: 0,
+  status: 'continue',
+  wordList: words,
+  guess: '',
+  chosenTarget: '',
 };
 
-console.log(getStatuses('hello', ['soare']));
+console.log(findBestWord(state));
