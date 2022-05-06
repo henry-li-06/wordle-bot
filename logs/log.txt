@@ -1,0 +1,24 @@
+Description: Use minimax under 150 remaining words
+4.8
+
+Description: Only maximize expected information gain
+4.32
+
+Description: Only maximize expected information gain part 2
+4.52
+
+Description: Only maximize expected information gain part 3
+4.49
+
+Description: Only maximize information gain part 4
+4.58
+
+Description: Use minimax with less than 20 words
+4.47
+
+Description: fewer words
+3.6
+
+Description: Depth limited minimax by number of remaininig words
+4.64
+

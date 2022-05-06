@@ -1,13 +1,10 @@
 import words from '../../data/words.json';
 import GameEngine from './GameEngine';
-import { GameResponse, LetterInfo } from '../types';
-import {
-  getRandomArbitrary,
-  allPossibleFeedback,
-  isMatch,
-  sleep,
-} from '../utils';
+import { GameResponse, LetterInfo, GameState } from '../types';
+import { allPossibleFeedback, isMatch, sleep, computeFeedback } from '../utils';
 import * as progress from 'cli-progress';
+
+const MAX_GUESSES = 6;
 
 export default class GuessEngine {
   possibleGuesses: string[];
@@ -21,7 +18,76 @@ export default class GuessEngine {
     this.numGuesses = 0;
   }
 
-  private static handleGreyFeedback(
+  private static minimax(
+    isMaxTurn: boolean,
+    state: GameState,
+    alpha: number,
+    beta: number,
+    depth: number,
+    maxDepth: number
+  ): number {
+    // console.log(depth);
+    if (state.status === 'correct') return 1 / state.numGuesses;
+    if (depth >= maxDepth) {
+      return 0;
+    }
+    if (isMaxTurn) {
+      let bestScore = -Infinity;
+      state.wordList.every((word) => {
+        const newState: GameState = {
+          ...state,
+          guess: word,
+          numGuesses: state.numGuesses + 1,
+          status:
+            state.wordList.length === 0 && word === state.wordList[0]
+              ? 'correct'
+              : 'continue',
+        };
+        const value = GuessEngine.minimax(
+          !isMaxTurn,
+          newState,
+          alpha,
+          beta,
+          depth + 1,
+          maxDepth
+        );
+        bestScore = Math.max(bestScore, value);
+        alpha = Math.max(alpha, bestScore);
+        if (beta <= alpha) return false;
+      });
+      return bestScore;
+    } else {
+      let bestScore = Infinity;
+      state.wordList.forEach((word) => {
+        const feedback = computeFeedback(state.guess, word);
+        const remainingPossibleGuesses = GuessEngine.handleFeedback(
+          state.guess,
+          feedback,
+          state.wordList
+        );
+        const newState: GameState = {
+          ...state,
+          status:
+            remainingPossibleGuesses.length === 1 ? 'correct' : 'continue',
+          wordList: remainingPossibleGuesses,
+        };
+        const value = GuessEngine.minimax(
+          !isMaxTurn,
+          newState,
+          alpha,
+          beta,
+          depth,
+          maxDepth
+        );
+        bestScore = Math.min(value, bestScore);
+        beta = Math.min(beta, bestScore);
+        if (beta <= alpha) return false;
+      });
+      return bestScore;
+    }
+  }
+
+  private static handleAbsentFeedback(
     guess: string,
     feedback: LetterInfo[],
     possibleGuess: string,
@@ -30,12 +96,12 @@ export default class GuessEngine {
     const letter = guess[pos];
     const containsOther = guess
       .split('')
-      .some((it, i) => i !== pos && it === letter && feedback[i] !== 'grey');
+      .some((it, i) => i !== pos && it === letter && feedback[i] !== 'absent');
     if (!containsOther) return !possibleGuess.includes(letter);
     return possibleGuess[pos] !== guess[pos];
   }
 
-  private handleFeedback(
+  private static handleFeedback(
     guess: string,
     feedback: LetterInfo[],
     wordList: string[]
@@ -43,13 +109,13 @@ export default class GuessEngine {
     let remainingGuesses;
     guess.split('').forEach((letter, i) => {
       wordList = wordList.filter((possibleGuess) => {
-        if (feedback[i] === 'green') return possibleGuess[i] === guess[i];
-        if (feedback[i] === 'yellow')
+        if (feedback[i] === 'correct') return possibleGuess[i] === guess[i];
+        if (feedback[i] === 'present')
           return (
             possibleGuess.includes(guess[i]) && possibleGuess[i] !== guess[i]
           );
 
-        return GuessEngine.handleGreyFeedback(
+        return GuessEngine.handleAbsentFeedback(
           guess,
           feedback,
           possibleGuess,
@@ -66,17 +132,64 @@ export default class GuessEngine {
     feedback: LetterInfo[]
   ): number {
     let remainingGuesses = [...this.possibleGuesses];
-    remainingGuesses = this.handleFeedback(guess, feedback, remainingGuesses);
+    remainingGuesses = GuessEngine.handleFeedback(
+      guess,
+      feedback,
+      remainingGuesses
+    );
     return remainingGuesses.length === 0
       ? 0
       : -Math.log2(remainingGuesses.length / this.possibleGuesses.length);
   }
 
   computeBestGuess(): string {
+    if (this.possibleGuesses.length <= 20)
+      return this.computeBestGuessWithMinimax();
+    else return this.computeBestGuessWithInformationGain();
+  }
+
+  computeBestGuessWithMinimax(): string {
+    // console.log('minimax');
+    const state: GameState = {
+      numGuesses: 0,
+      status: 'continue',
+      wordList: [...this.possibleGuesses],
+      guess: '',
+      chosenTarget: '',
+    };
+    let bestScore = -Infinity;
+    let bestWord = '';
+    state.wordList.forEach((word) => {
+      const newState: GameState = {
+        ...state,
+        guess: word,
+        numGuesses: state.numGuesses + 1,
+        status:
+          state.wordList.length === 0 && word === state.wordList[0]
+            ? 'correct'
+            : 'continue',
+      };
+      const score = GuessEngine.minimax(
+        true,
+        newState,
+        -Infinity,
+        Infinity,
+        0,
+        MAX_GUESSES - this.numGuesses
+      );
+      if (score > bestScore) {
+        bestScore = score;
+        bestWord = word;
+      }
+    });
+    return bestWord;
+  }
+
+  computeBestGuessWithInformationGain(): string {
     if (this.numGuesses === 0) {
       this.numGuesses++;
       sleep(3000);
-      return 'slate';
+      return 'soare';
     }
     const bar = new progress.SingleBar({}, progress.Presets.legacy);
     bar.start(this.possibleGuesses.length, 0);
@@ -114,7 +227,7 @@ export default class GuessEngine {
       console.log('Determining the best guess...');
       let guess = this.computeBestGuess();
       response = await this.engine.makeGuess(guess);
-      this.possibleGuesses = this.handleFeedback(
+      this.possibleGuesses = GuessEngine.handleFeedback(
         guess,
         response.feedback,
         this.possibleGuesses

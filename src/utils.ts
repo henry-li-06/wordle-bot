@@ -13,9 +13,9 @@ export const getRandomArbitrary = (min, max) => {
 };
 
 const computeAllPossibleFeedback = (len: number): LetterInfo[][] => {
-  if (len === 1) return [['green'], ['yellow'], ['grey']];
+  if (len === 1) return [['correct'], ['present'], ['absent']];
 
-  const possiblities: LetterInfo[] = ['green', 'yellow', 'grey'];
+  const possiblities: LetterInfo[] = ['correct', 'present', 'absent'];
   const result: LetterInfo[][] = [];
   possiblities.forEach((color) => {
     let possibleFeedbacks = computeAllPossibleFeedback(len - 1);
@@ -36,29 +36,25 @@ export const isMatch = (
 ): boolean => {
   return guess.split('').every((letter, i) => {
     switch (feedback[i]) {
-      case 'green':
+      case 'correct':
         return letter === word[i];
-      case 'yellow':
+      case 'present':
         return word.includes(letter);
-      case 'grey':
+      case 'absent':
         return !word.includes(letter);
     }
   });
 };
 
-export const convertFeedback = (feedback: string[]): LetterInfo[] =>
-  feedback.map((info) => {
-    switch (info) {
-      case 'present':
-        return 'yellow';
-      case 'absent':
-        return 'grey';
-      case 'correct':
-        return 'green';
-      default:
-        throw new Error();
-    }
-  });
-
 export const sleep = (delay) =>
   new Promise((resolve) => setTimeout(resolve, delay));
+
+export const computeFeedback = (word: string, target: string): LetterInfo[] => {
+  const feedback: LetterInfo[] = [];
+  word.split('').forEach((letter, i) => {
+    if (letter === target[i]) feedback.push('correct');
+    else if (target.includes(letter)) feedback.push('present');
+    else feedback.push('absent');
+  });
+  return feedback;
+};

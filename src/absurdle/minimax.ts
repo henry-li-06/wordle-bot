@@ -1,18 +1,17 @@
-import { workerData } from 'worker_threads';
 import { GameState } from './types';
 import { LetterInfo } from '../types';
 
 const computeFeedback = (word: string, target: string): LetterInfo[] => {
   const feedback: LetterInfo[] = [];
   word.split('').forEach((letter, i) => {
-    if (letter === target[i]) feedback.push('green');
-    else if (target.includes(letter)) feedback.push('yellow');
-    else feedback.push('grey');
+    if (letter === target[i]) feedback.push('correct');
+    else if (target.includes(letter)) feedback.push('present');
+    else feedback.push('absent');
   });
   return feedback;
 };
 
-const handleGreyFeedback = (
+const handleAbsentFeedback = (
   guess: string,
   feedback: LetterInfo[],
   possibleGuess: string,
@@ -21,7 +20,7 @@ const handleGreyFeedback = (
   const letter = guess[pos];
   const containsOther = guess
     .split('')
-    .some((it, i) => i !== pos && it === letter && feedback[i] !== 'grey');
+    .some((it, i) => i !== pos && it === letter && feedback[i] !== 'absent');
   if (!containsOther) return !possibleGuess.includes(letter);
   return possibleGuess[pos] !== guess[pos];
 };
@@ -34,8 +33,8 @@ const handleFeedback = (
   let remainingGuesses;
   guess.split('').forEach((letter, i) => {
     wordList = wordList.filter((possibleGuess) => {
-      if (feedback[i] === 'green') return possibleGuess[i] === guess[i];
-      if (feedback[i] === 'yellow')
+      if (feedback[i] === 'correct') return possibleGuess[i] === guess[i];
+      if (feedback[i] === 'present')
         return (
           possibleGuess.includes(guess[i]) && possibleGuess[i] !== guess[i]
         );
@@ -60,7 +59,7 @@ export const findBestWord = (state: GameState) => {
           ? 'correct'
           : 'continue',
     };
-    const score = minimax(false, newState);
+    const score = minimax(false, newState, -Infinity, Infinity, 0);
     if (score > bestScore) {
       bestScore = score;
       bestWord = word;
@@ -69,13 +68,22 @@ export const findBestWord = (state: GameState) => {
   return bestWord;
 };
 
-const minimax = (isMaxTurn: boolean, state: GameState): number => {
-  if (state.status === 'correct') return 1 / state.numGuesses;
-  const scores: number[] = [];
-  state.wordList.forEach((word) => {
-    let newState: GameState;
-    if (isMaxTurn) {
-      newState = {
+const minimax = (
+  isMaxTurn: boolean,
+  state: GameState,
+  alpha: number,
+  beta: number,
+  depth: number
+): number => {
+  console.log(depth);
+  if (state.status === 'correct') return 1;
+  // if (isMaxTurn && depth >= 3) {
+  //   return 1 / state.wordList.length;
+  // }
+  if (isMaxTurn) {
+    let bestScore = -Infinity;
+    state.wordList.every((word) => {
+      const newState: GameState = {
         ...state,
         guess: word,
         numGuesses: state.numGuesses + 1,
@@ -84,8 +92,15 @@ const minimax = (isMaxTurn: boolean, state: GameState): number => {
             ? 'correct'
             : 'continue',
       };
-      scores.push(minimax(!isMaxTurn, newState));
-    } else {
+      const value = minimax(!isMaxTurn, newState, alpha, beta, depth + 1);
+      bestScore = Math.max(bestScore, value);
+      alpha = Math.max(alpha, bestScore);
+      if (beta <= alpha) return false;
+    });
+    return bestScore;
+  } else {
+    let bestScore = Infinity;
+    state.wordList.forEach((word) => {
       const feedback = computeFeedback(state.guess, word);
       const remainingPossibleGuesses = handleFeedback(
         state.guess,
@@ -97,8 +112,11 @@ const minimax = (isMaxTurn: boolean, state: GameState): number => {
         status: remainingPossibleGuesses.length === 1 ? 'correct' : 'continue',
         wordList: remainingPossibleGuesses,
       };
-      scores.push(minimax(!isMaxTurn, newState));
-    }
-  });
-  return isMaxTurn ? Math.max(...scores) : Math.min(...scores);
+      const value = minimax(!isMaxTurn, newState, alpha, beta, depth + 1);
+      bestScore = Math.min(value, bestScore);
+      beta = Math.min(beta, bestScore);
+      if (beta <= alpha) return false;
+    });
+    return bestScore;
+  }
 };

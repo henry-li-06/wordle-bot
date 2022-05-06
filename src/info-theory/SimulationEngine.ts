@@ -2,9 +2,9 @@ import { GameResponse } from '../types';
 import GameEngine from './GameEngine';
 import { isValidWord } from '../utils';
 
-export default class SimulationEngine extends GameEngine {
-  maxGuesses = 6;
+const MAX_GUESSES = 6;
 
+export default class SimulationEngine extends GameEngine {
   target: string;
   constructor(target: string) {
     super();
@@ -14,20 +14,20 @@ export default class SimulationEngine extends GameEngine {
   }
 
   async makeGuess(guess: string): Promise<GameResponse> {
-    if (!isValidWord(guess) || this.numGuesses >= this.maxGuesses)
+    if (!isValidWord(guess) || this.numGuesses >= MAX_GUESSES)
       throw new Error();
 
     this.numGuesses++;
     guess = guess.toLowerCase();
     const feedback = guess.split('').map((letter, i) => {
-      if (letter === this.target[i]) return 'green';
-      if (this.target.includes(letter)) return 'yellow';
-      return 'grey';
+      if (letter === this.target[i]) return 'correct';
+      if (this.target.includes(letter)) return 'present';
+      return 'absent';
     });
     const status =
       guess === this.target
         ? 'correct'
-        : this.numGuesses === this.maxGuesses
+        : this.numGuesses === MAX_GUESSES
         ? 'finished'
         : 'continue';
     return { status, feedback, numGuesses: this.numGuesses, guess };

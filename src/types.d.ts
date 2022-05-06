@@ -7,4 +7,12 @@ export type GameResponse = {
 
 export type GameStatus = 'correct' | 'finished' | 'continue';
 
-export type LetterInfo = 'green' | 'yellow' | 'grey';
+export type LetterInfo = 'correct' | 'present' | 'absent';
+
+export interface GameState {
+  numGuesses: number;
+  status: 'continue' | 'correct';
+  wordList: string[];
+  guess: string;
+  chosenTarget: string;
+}

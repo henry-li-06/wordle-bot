@@ -1,7 +1,7 @@
 import { Builder, WebDriver, By } from 'selenium-webdriver';
 import GameEngine from './GameEngine';
 import { GameResponse, LetterInfo } from '../types';
-import { convertFeedback, sleep } from '../utils';
+import { sleep } from '../utils';
 
 export default class BrowserEngine extends GameEngine {
   driver: WebDriver;
@@ -90,14 +90,14 @@ export default class BrowserEngine extends GameEngine {
     const feedback = await sleep(5000).then(() => this.readFeedback());
 
     this.numGuesses++;
-    const status = feedback.every((info) => info === 'green')
+    const status = feedback.every((info) => info === 'correct')
       ? 'correct'
       : this.numGuesses < 6
       ? 'continue'
       : 'finished';
     return {
       status,
-      feedback: convertFeedback(feedback),
+      feedback,
       numGuesses: this.numGuesses,
       guess,
     };
