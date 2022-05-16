@@ -21,4 +21,47 @@ Description: fewer words
 
 Description: Depth limited minimax by number of remaininig words
 4.64
+Description: Using minimax under 20
+Average: 4.53
+Standard Deviation: 1.0812492774564062
+
+
+Description: USing minimax under 50
+Average: 4.54
+Standard Deviation: 1.2034949106664308
+
+Description: USing minimax under 20
+Average: 4.578
+Standard Deviation: 1.0880790412465462
+
+Description: USing minimax under 50
+Average: 4.596
+Standard Deviation: 1.0699457930194427
+
+
+
+/Users/henryli/projects/wordle-bot/node_modules/.bin/ts-node,/Users/henryli/projects/wordle-bot/src/test.ts,No minimax,5
+Description: No minimax
+Average: 4.2
+Standard Deviation: 1.16619037896906
+
+/Users/henryli/projects/wordle-bot/node_modules/.bin/ts-node,/Users/henryli/projects/wordle-bot/src/test.ts,No minimax,50
+Description: No minimax
+Average: 4.34
+Standard Deviation: 1.0316976301223146
+
+/Users/henryli/projects/wordle-bot/node_modules/.bin/ts-node,/Users/henryli/projects/wordle-bot/src/test.ts,fix alpha-beta pruning,10
+Description: fix alpha-beta pruning
+Average: 4.6
+Standard Deviation: 0.9165151389911679
+
+/Users/henryli/projects/wordle-bot/node_modules/.bin/ts-node,/Users/henryli/projects/wordle-bot/src/test.ts,minimax udner 50,100
+Description: minimax udner 50
+Average: 4.71
+Standard Deviation: 1.160129303138232
+
+/Users/henryli/projects/wordle-bot/node_modules/.bin/ts-node,/Users/henryli/projects/wordle-bot/src/test.ts,minimax under 10,100
+Description: minimax under 10
+Average: 4.56
+Standard Deviation: 1.1164228589562288
 

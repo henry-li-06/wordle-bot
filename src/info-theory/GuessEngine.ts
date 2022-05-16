@@ -26,7 +26,7 @@ export default class GuessEngine {
     depth: number,
     maxDepth: number
   ): number {
-    // console.log(depth);
+    console.log('minimax');
     if (state.status === 'correct') return 1 / state.numGuesses;
     if (depth >= maxDepth) {
       return 0;
@@ -143,13 +143,12 @@ export default class GuessEngine {
   }
 
   computeBestGuess(): string {
-    if (this.possibleGuesses.length <= 20)
+    if (this.possibleGuesses.length <= 10)
       return this.computeBestGuessWithMinimax();
     else return this.computeBestGuessWithInformationGain();
   }
 
   computeBestGuessWithMinimax(): string {
-    // console.log('minimax');
     const state: GameState = {
       numGuesses: 0,
       status: 'continue',
