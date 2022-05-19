@@ -26,7 +26,7 @@ export default class GuessEngine {
     depth: number,
     maxDepth: number
   ): number {
-    console.log('minimax');
+    // console.log('minimax');
     if (state.status === 'correct') return 1 / state.numGuesses;
     if (depth >= maxDepth) {
       return 0;
